@@ -1,12 +1,9 @@
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { router } from 'expo-router';
 import { Button } from '@/components/ui/Button';
 import { colors, borderRadius, spacing, fontSize, fontWeight } from '@/lib/theme';
 import { useIsDark } from '@/stores/useSettingsStore';
-import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { useTranslation } from '@/i18n';
-
-const { width } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
   const isDark = useIsDark();
@@ -21,17 +18,7 @@ export default function WelcomeScreen() {
     >
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <Svg width={120} height={120} viewBox="0 0 120 120">
-            <Circle cx={60} cy={60} r={55} fill={colors.light.primaryLight} />
-            <Path
-              d="M35 60 Q45 35 60 40 Q75 35 85 60 Q75 85 60 80 Q45 85 35 60Z"
-              fill={colors.light.primary}
-            />
-            <Rect x={54} y={30} width={12} height={28} rx={6} fill="#FFFFFF" />
-            <Rect x={54} y={62} width={12} height={28} rx={6} fill="#FFFFFF" />
-            <Rect x={30} y={54} width={28} height={12} rx={6} fill="#FFFFFF" />
-            <Rect x={62} y={54} width={28} height={12} rx={6} fill="#FFFFFF" />
-          </Svg>
+          <Image source={require('../../assets/tranparente.png')} style={styles.logo} resizeMode="contain" />
         </View>
 
         <Text
@@ -85,7 +72,7 @@ export default function WelcomeScreen() {
       <View style={styles.footer}>
         <Button
           title={t('onboard.getStarted')}
-          onPress={() => router.push('/(onboarding)/permissions')}
+          onPress={() => router.push('/(onboarding)/profile-setup')}
           size="lg"
           style={{ width: '100%' }}
         />
@@ -107,6 +94,10 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     marginBottom: spacing.lg,
+  },
+  logo: {
+    width: 140,
+    height: 140,
   },
   title: {
     fontSize: fontSize.xxl,

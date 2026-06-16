@@ -174,18 +174,21 @@ export function setupNotificationResponseHandler(): () => void {
       import('@/stores/useWaterStore').then(({ useWaterStore }) => {
         useWaterStore.getState().addWater(200);
       });
+      Notifications.dismissNotificationAsync(notification.request.identifier);
     }
 
     if (actionIdentifier === 'taken' && data?.type === 'medication') {
       import('@/stores/useMedicationStore').then(({ useMedicationStore }) => {
         useMedicationStore.getState().logStatus(data.medicationId, data.scheduledTime, 'taken');
       });
+      Notifications.dismissNotificationAsync(notification.request.identifier);
     }
 
     if (actionIdentifier === 'skip' && data?.type === 'medication') {
       import('@/stores/useMedicationStore').then(({ useMedicationStore }) => {
         useMedicationStore.getState().logStatus(data.medicationId, data.scheduledTime, 'skipped');
       });
+      Notifications.dismissNotificationAsync(notification.request.identifier);
     }
   });
 

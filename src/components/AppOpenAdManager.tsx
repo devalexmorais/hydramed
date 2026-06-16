@@ -34,18 +34,9 @@ export function AppOpenAdManager() {
       }
     };
 
-    const showAdDelayed = () => {
-      setTimeout(showAd, 5000);
-    };
-
     const subscription = AppState.addEventListener('change', (nextState: AppStateStatus) => {
       if (appState.current.match(/inactive|background/) && nextState === 'active') {
-        if (!initialShowDone.current) {
-          showAdDelayed();
-          initialShowDone.current = true;
-        } else {
-          showAd();
-        }
+        showAd();
       }
       appState.current = nextState;
     });

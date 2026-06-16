@@ -7,6 +7,10 @@ export interface User {
   waterGoal: number;
   wakeUpTime: string;
   sleepTime: string;
+  exerciseFrequency: number;
+  breakfastTime: string;
+  lunchTime: string;
+  dinnerTime: string;
   notificationSound: string;
   onboardingComplete: boolean;
   locale: string;

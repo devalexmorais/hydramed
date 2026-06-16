@@ -75,6 +75,12 @@ export function calculateAdherence(
   return Math.round((taken / total) * 100);
 }
 
+export function formatTimeInput(text: string): string {
+  const digits = text.replace(/\D/g, '').slice(0, 4);
+  if (digits.length <= 2) return digits;
+  return `${digits.slice(0, 2)}:${digits.slice(2)}`;
+}
+
 export function distributeWaterReminders(
   goal: number,
   wakeUp: string,
@@ -89,8 +95,13 @@ export function distributeWaterReminders(
   const reminders: string[] = [];
   
   for (let m = wakeMinutes; m < sleepMinutes; m += intervalMinutes) {
-    const hours = Math.floor(m / 60);
-    const mins = Math.round(m % 60);
+    let hours = Math.floor(m / 60);
+    let mins = Math.round(m % 60);
+    if (mins === 60) {
+      hours += 1;
+      mins = 0;
+    }
+    if (hours >= 24) break;
     reminders.push(
       `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`
     );

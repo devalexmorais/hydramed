@@ -115,6 +115,22 @@ export default function SettingsScreen() {
               {user?.height ? `${user.height}cm` : '--'}
             </Text>
           </View>
+          <View style={styles.detailRow}>
+            <Text style={{ color: isDark ? colors.dark.textSecondary : colors.light.textSecondary, fontSize: fontSize.sm }}>{t('onboard.exerciseLabel')}</Text>
+            <Text style={{ color: isDark ? colors.dark.text : colors.light.text, fontWeight: fontWeight.semibold, fontSize: fontSize.sm }}>
+              {t('onboard.exerciseDays', { days: user?.exerciseFrequency ?? 0 })}
+            </Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={{ color: isDark ? colors.dark.textSecondary : colors.light.textSecondary, fontSize: fontSize.sm }}>{t('onboard.mealTimesLabel')}</Text>
+            <Text style={{ color: isDark ? colors.dark.text : colors.light.text, fontWeight: fontWeight.semibold, fontSize: fontSize.sm }}>
+              {t('onboard.mealSchedule', {
+                breakfast: user?.breakfastTime || '08:00',
+                lunch: user?.lunchTime || '12:00',
+                dinner: user?.dinnerTime || '19:00',
+              })}
+            </Text>
+          </View>
         </View>
         <Button
           title={t('settings.editProfile')}

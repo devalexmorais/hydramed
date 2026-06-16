@@ -184,8 +184,8 @@ export const en = {
   'onboard.skip': 'Skip for now',
 
   // Onboarding - Profile Setup
-  'onboard.profileSetup': 'Set Up Your Profile',
-  'onboard.profileDesc': 'Customize your experience',
+  'onboard.profileSetup': 'Your Info',
+  'onboard.profileDesc': 'Tell us about yourself',
   'onboard.name': 'Name',
   'onboard.namePlaceholder': 'Your name',
   'onboard.age': 'Age',
@@ -194,17 +194,53 @@ export const en = {
   'onboard.heightPlaceholder': '170',
   'onboard.weight': 'Weight (kg)',
   'onboard.weightPlaceholder': '70',
-  'onboard.waterGoal': 'Daily Water Goal (ml)',
-  'onboard.waterGoalPlaceholder': '2000',
+  'onboard.continue': 'Continue',
+  'onboard.validName': 'Name is required',
+  'onboard.validNumber': 'Must be a number',
+  'onboard.validWeight': 'Must be a valid weight',
+
+  // Onboarding - Exercise Frequency
+  'onboard.exercise': 'Exercise Routine',
+  'onboard.exerciseDesc': 'How many days per week do you exercise?',
+  'onboard.exerciseNone': 'None / Rarely',
+  'onboard.exerciseLight': '1-2 days',
+  'onboard.exerciseModerate': '3-4 days',
+  'onboard.exerciseActive': '5-6 days',
+  'onboard.exerciseDaily': 'Every day',
+
+  // Onboarding - Meal Times
+  'onboard.mealTimes': 'Meal Times',
+  'onboard.mealTimesDesc': 'What time do you usually have your meals?',
+  'onboard.breakfast': 'Breakfast',
+  'onboard.breakfastPlaceholder': '08:00',
+  'onboard.lunch': 'Lunch',
+  'onboard.lunchPlaceholder': '12:00',
+  'onboard.dinner': 'Dinner',
+  'onboard.dinnerPlaceholder': '19:00',
+
+  // Onboarding - Sleep Time
+  'onboard.sleepTitle': 'Sleep Schedule',
+  'onboard.sleepDesc': 'What time do you usually wake up and go to sleep?',
   'onboard.wakeUp': 'Wake Up Time',
   'onboard.wakeUpPlaceholder': '07:00',
   'onboard.sleep': 'Sleep Time',
   'onboard.sleepPlaceholder': '23:00',
-  'onboard.complete': 'Complete Setup',
-  'onboard.validName': 'Name is required',
-  'onboard.validNumber': 'Must be a number',
-  'onboard.validWeight': 'Must be a valid weight',
   'onboard.validTime': 'Use HH:MM format',
+
+  // Onboarding - Summary
+  'onboard.summaryTitle': 'Your Daily Goal',
+  'onboard.summaryDesc': 'Based on your information, here is your personalized plan',
+  'onboard.yourInfo': 'Your Info',
+  'onboard.yourSchedule': 'Your Schedule',
+  'onboard.waterGoal': 'Daily Water Goal',
+  'onboard.waterGoalCalc': '{goal}ml per day',
+  'onboard.exerciseLabel': 'Exercise',
+  'onboard.exerciseDays': '{days}x per week',
+  'onboard.mealTimesLabel': 'Meal Times',
+  'onboard.mealSchedule': '{breakfast} / {lunch} / {dinner}',
+  'onboard.sleepLabel': 'Sleep',
+  'onboard.sleepSchedule': '{wakeUp} - {sleep}',
+  'onboard.start': 'Start My Journey',
 
   // History
   'history.title': 'History',

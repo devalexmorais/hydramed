@@ -26,6 +26,10 @@ async function initializeDatabase(database: SQLite.SQLiteDatabase): Promise<void
       waterGoal INTEGER NOT NULL DEFAULT 2000,
       wakeUpTime TEXT NOT NULL DEFAULT '07:00',
       sleepTime TEXT NOT NULL DEFAULT '23:00',
+      exercise_frequency INTEGER NOT NULL DEFAULT 0,
+      breakfast_time TEXT NOT NULL DEFAULT '08:00',
+      lunch_time TEXT NOT NULL DEFAULT '12:00',
+      dinner_time TEXT NOT NULL DEFAULT '19:00',
       notificationSound TEXT NOT NULL DEFAULT 'default',
       onboardingComplete INTEGER NOT NULL DEFAULT 0,
       locale TEXT NOT NULL DEFAULT '',
@@ -85,6 +89,26 @@ async function initializeDatabase(database: SQLite.SQLiteDatabase): Promise<void
 
   try {
     await database.execAsync(`ALTER TABLE users ADD COLUMN height REAL NOT NULL DEFAULT 0;`);
+  } catch {
+    // Column already exists
+  }
+  try {
+    await database.execAsync(`ALTER TABLE users ADD COLUMN exercise_frequency INTEGER NOT NULL DEFAULT 0;`);
+  } catch {
+    // Column already exists
+  }
+  try {
+    await database.execAsync(`ALTER TABLE users ADD COLUMN breakfast_time TEXT NOT NULL DEFAULT '08:00';`);
+  } catch {
+    // Column already exists
+  }
+  try {
+    await database.execAsync(`ALTER TABLE users ADD COLUMN lunch_time TEXT NOT NULL DEFAULT '12:00';`);
+  } catch {
+    // Column already exists
+  }
+  try {
+    await database.execAsync(`ALTER TABLE users ADD COLUMN dinner_time TEXT NOT NULL DEFAULT '19:00';`);
   } catch {
     // Column already exists
   }
