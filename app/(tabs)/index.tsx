@@ -1,16 +1,17 @@
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useMedicationStore } from '@/stores/useMedicationStore';
 import { useWaterStore } from '@/stores/useWaterStore';
 import { useStatsStore } from '@/stores/useStatsStore';
-import { useSettingsStore, useIsDark } from '@/stores/useSettingsStore';
+import { useIsDark } from '@/stores/useSettingsStore';
 import { ProgressCircle } from '@/components/ProgressCircle';
 import { colors, borderRadius, spacing, fontSize, fontWeight } from '@/lib/theme';
-import { formatDateFull, formatTime } from '@/lib/utils';
+import { formatDateFull, formatTime, distributeWaterReminders } from '@/lib/utils';
 import { useTranslation, getGreeting } from '@/i18n';
-import { mobileAdsModule, AD_UNIT_IDS } from '@/lib/admob';
+import { useInterstitial } from '@/components/InterstitialAdManager';
+
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Rect, Path, Ellipse } from 'react-native-svg';
 
@@ -56,36 +57,14 @@ function WaterBottleIllustration() {
 }
 
 export default function DashboardScreen() {
+  const { showInterstitial } = useInterstitial();
   const { user } = useAuthStore();
   const { medications, todayLogs, loadMedications, loadTodayLogs, logStatus, generateTodayLogs } = useMedicationStore();
   const { todayIntake, todayLogs: waterLogs, loadToday: loadWaterToday, addWater } = useWaterStore();
   const { dailyStats, weeklyStats, loadDailyStats, loadWeeklyStats } = useStatsStore();
-  const { reminderInterval } = useSettingsStore();
+
   const isDark = useIsDark();
   const { t, locale } = useTranslation();
-  const adShownRef = useRef(false);
-
-  // Load Interstitial Ads
-  useEffect(() => {
-    if (adShownRef.current || !mobileAdsModule) return;
-    adShownRef.current = true;
-
-    const timer = setTimeout(() => {
-      const { InterstitialAd, AdEventType } = mobileAdsModule!;
-      const ad = InterstitialAd.createForAdRequest(AD_UNIT_IDS.interstitial);
-      const unsubLoaded = ad.addAdEventListener(AdEventType.LOADED, () => {
-        ad.show();
-        unsubLoaded();
-      });
-      const unsubClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
-        unsubClosed();
-      });
-      ad.load();
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
   // Sync data on screen focus
   useFocusEffect(
     useCallback(() => {
@@ -114,16 +93,32 @@ export default function DashboardScreen() {
   const skippedDoses = todayLogs.filter((l) => l.status === 'skipped').length;
   const medsProgress = totalDoses > 0 ? Math.round((takenDoses / totalDoses) * 100) : 0;
 
-  // Next Water Reminder Time Calculation
+  // Next Water Reminder Time Calculation based on scheduled notification times
   const getNextWaterReminderTime = () => {
-    if (waterLogs.length === 0) {
-      // Default placeholder morning reminder
-      return '10:30 AM';
+    const times = distributeWaterReminders(
+      user?.waterGoal || 2000,
+      user?.wakeUpTime || '07:00',
+      user?.sleepTime || '23:00'
+    );
+    if (times.length === 0) return '10:30 AM';
+
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    for (const time of times) {
+      const [h, m] = time.split(':').map(Number);
+      if (h * 60 + m > currentMinutes) {
+        const d = new Date();
+        d.setHours(h, m, 0, 0);
+        return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+      }
     }
-    const lastLog = waterLogs[waterLogs.length - 1];
-    const lastTime = new Date(lastLog.createdAt);
-    const nextTime = new Date(lastTime.getTime() + reminderInterval * 60 * 1000);
-    return nextTime.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+
+    const [h, m] = times[0].split(':').map(Number);
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    d.setHours(h, m, 0, 0);
+    return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
   };
 
   // Next Medication Dose Time Calculation
@@ -219,7 +214,7 @@ export default function DashboardScreen() {
         <View style={styles.header}>
           <View style={{ flex: 1 }}>
             <Text style={[styles.greeting, { color: isDark ? colors.dark.text : '#1E293B' }]}>
-              {greeting}, {user?.name || t('friend')}! 👋
+              {greeting}, {user?.name?.split(' ')[0] || t('friend')}! 👋
             </Text>
             <Text style={[styles.subtitle, { color: isDark ? colors.dark.textTertiary : '#64748B' }]}>
               {locale.startsWith('pt') ? 'Cuide da sua saúde hoje' : locale.startsWith('es') ? 'Cuida tu salud hoy' : 'Take care of your health today'}
@@ -283,6 +278,7 @@ export default function DashboardScreen() {
                 await addWater(200);
                 await loadDailyStats();
                 await loadWeeklyStats();
+                showInterstitial();
               }}
             >
               <Ionicons name="add" size={14} color="#FFFFFF" />
@@ -342,6 +338,7 @@ export default function DashboardScreen() {
                     await logStatus(nextPending.medicationId, nextPending.scheduledTime, 'taken');
                     await loadDailyStats();
                     await loadWeeklyStats();
+                    showInterstitial();
                   }}
                 >
                   <Ionicons name="checkmark" size={14} color="#FFFFFF" />
@@ -414,6 +411,7 @@ export default function DashboardScreen() {
                       }
                       await loadDailyStats();
                       await loadWeeklyStats();
+                      showInterstitial();
                     }}
                   >
                     <Text style={[styles.actionButtonText, { color: themeColor }]}>

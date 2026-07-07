@@ -5,7 +5,6 @@ import { useIsDark } from '@/stores/useSettingsStore';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { AdBanner } from '@/components/AdBanner';
-import { useInterstitialAd } from '@/lib/useInterstitialAd';
 import { colors, borderRadius, spacing, fontSize, fontWeight } from '@/lib/theme';
 import { formatDate, formatTime } from '@/lib/utils';
 import { executeQuery } from '@/db/database';
@@ -15,7 +14,6 @@ import { useTranslation } from '@/i18n';
 export default function HistoryScreen() {
   const { t } = useTranslation();
   const isDark = useIsDark();
-  const { show: showInterstitial } = useInterstitialAd();
   const [searchDate, setSearchDate] = useState(new Date().toISOString().split('T')[0]);
   const [medLogs, setMedLogs] = useState<MedicationLog[]>([]);
   const [waterLogs, setWaterLogs] = useState<WaterLog[]>([]);

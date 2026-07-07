@@ -73,20 +73,20 @@ export default function TabLayout() {
               
               return (
                 <View style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 22,
+                  width: 50,
+                  height: 50,
+                  borderRadius: 25,
                   backgroundColor: bg,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  marginTop: -12,
+                  marginTop: -16,
                   shadowColor: isDark ? colors.dark.primary : colors.light.primary,
                   shadowOffset: { width: 0, height: 4 },
                   shadowOpacity: focused ? 0.3 : 0.1,
                   shadowRadius: 6,
                   elevation: 5,
                 }}>
-                  <Ionicons name="home" size={22} color={iconColor} />
+                  <Ionicons name="home" size={26} color={iconColor} />
                 </View>
               );
             }

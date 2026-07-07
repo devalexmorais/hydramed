@@ -22,7 +22,6 @@ export const ptBR: Record<string, string> = {
   'common.save': 'Salvar',
   'common.error': 'Erro',
   'common.reset': 'Redefinir',
-  'common.export': 'Exportar',
   'common.doses': 'doses',
   'common.noData': 'sem dados',
 
@@ -146,11 +145,6 @@ export const ptBR: Record<string, string> = {
   'settings.dark': 'Escuro',
   'settings.system': 'Sistema',
   'settings.language': 'Idioma',
-  'settings.data': 'Dados',
-  'settings.exportData': 'Exportar Dados',
-  'settings.resetAll': 'Redefinir Todos os Dados',
-  'settings.exportComing': 'Função de exportação em breve.',
-  'settings.resetConfirm': 'Tem certeza? Isso apagará todos os seus dados.',
   'settings.version': 'HydraMed v1.0.0',
 
   'onboard.welcome': 'Bem-vindo ao HydraMed',

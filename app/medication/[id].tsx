@@ -6,7 +6,6 @@ import { useIsDark } from '@/stores/useSettingsStore';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { AdBanner } from '@/components/AdBanner';
-import { useInterstitialAd } from '@/lib/useInterstitialAd';
 import { colors, borderRadius, spacing, fontSize, fontWeight } from '@/lib/theme';
 import { formatTime, formatDate } from '@/lib/utils';
 import { Medication, MedicationLog } from '@/types';
@@ -19,10 +18,7 @@ export default function MedicationDetailScreen() {
   const isDark = useIsDark();
   const [recentLogs, setRecentLogs] = useState<MedicationLog[]>([]);
 
-  const { show: showInterstitial } = useInterstitialAd();
-
   const handleBack = () => {
-    showInterstitial();
     router.back();
   };
 

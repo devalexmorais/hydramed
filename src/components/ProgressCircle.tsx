@@ -27,10 +27,10 @@ export function ProgressCircle({
   children,
 }: ProgressCircleProps) {
   const isDark = useIsDark();
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const clampedProgress = Math.min(Math.max(progress, 0), 100);
-  const strokeDashoffset = circumference - (clampedProgress / 100) * circumference;
+  const radius = Math.max((size - strokeWidth) / 2, 0);
+  const circumference = Number.isFinite(radius) ? 2 * Math.PI * radius : 0;
+  const clampedProgress = Number.isFinite(progress) ? Math.min(Math.max(progress, 0), 100) : 0;
+  const strokeDashoffset = circumference > 0 ? circumference - (clampedProgress / 100) * circumference : 0;
   const progressColor = color || colors.light.primary;
 
   const calculatedFontSize = centerText

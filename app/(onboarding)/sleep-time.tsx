@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Keyboard, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,6 +43,7 @@ export default function SleepTimeScreen() {
   };
 
   return (
+    <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
     <View style={[styles.container, { backgroundColor: isDark ? colors.dark.background : colors.light.background }]}>
       <View style={styles.header}>
         <Text style={[styles.title, { color: isDark ? colors.dark.text : colors.light.text }]}>
@@ -97,6 +98,7 @@ export default function SleepTimeScreen() {
         <Button title={t('onboard.continue')} onPress={handleSubmit(onSubmit)} size="lg" style={{ width: '100%' }} />
       </View>
     </View>
+    </Pressable>
   );
 }
 

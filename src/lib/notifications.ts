@@ -2,6 +2,10 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { distributeWaterReminders } from './utils';
 import { t as translate } from '@/i18n';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useMedicationStore } from '@/stores/useMedicationStore';
+import { useWaterStore } from '@/stores/useWaterStore';
+import { useSettingsStore } from '@/stores/useSettingsStore';
 
 export async function requestNotificationPermissions(locale: string = 'en'): Promise<boolean> {
   const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -171,26 +175,68 @@ export function setupNotificationResponseHandler(): () => void {
     const data = notification.request.content.data;
 
     if (actionIdentifier === 'drink' && data?.type === 'hydration') {
-      import('@/stores/useWaterStore').then(({ useWaterStore }) => {
-        useWaterStore.getState().addWater(200);
-      });
+      useWaterStore.getState().addWater(200);
       Notifications.dismissNotificationAsync(notification.request.identifier);
     }
 
     if (actionIdentifier === 'taken' && data?.type === 'medication') {
-      import('@/stores/useMedicationStore').then(({ useMedicationStore }) => {
-        useMedicationStore.getState().logStatus(data.medicationId, data.scheduledTime, 'taken');
-      });
+      useMedicationStore.getState().logStatus(data.medicationId, data.scheduledTime, 'taken');
       Notifications.dismissNotificationAsync(notification.request.identifier);
     }
 
     if (actionIdentifier === 'skip' && data?.type === 'medication') {
-      import('@/stores/useMedicationStore').then(({ useMedicationStore }) => {
-        useMedicationStore.getState().logStatus(data.medicationId, data.scheduledTime, 'skipped');
-      });
+      useMedicationStore.getState().logStatus(data.medicationId, data.scheduledTime, 'skipped');
       Notifications.dismissNotificationAsync(notification.request.identifier);
+    }
+
+    if (actionIdentifier === 'snooze' && data?.type === 'medication') {
+      const triggerDate = new Date(Date.now() + 10 * 60 * 1000);
+      Notifications.scheduleNotificationAsync({
+        content: {
+          title: notification.request.content.title,
+          body: notification.request.content.body,
+          data,
+          categoryIdentifier: 'medication',
+        },
+        trigger: { date: triggerDate, channelId: 'medications' },
+      });
     }
   });
 
   return () => subscription.remove();
+}
+
+export async function rescheduleAllNotifications(locale: string = 'en'): Promise<void> {
+  const { user } = useAuthStore.getState();
+  const { medications } = useMedicationStore.getState();
+  const { notificationsEnabled } = useSettingsStore.getState();
+
+  if (!notificationsEnabled || !user) return;
+
+  await cancelAllNotifications();
+
+  if (user.waterGoal > 0 && user.wakeUpTime && user.sleepTime) {
+    await scheduleAllHydrationReminders(user.waterGoal, user.wakeUpTime, user.sleepTime, locale);
+  }
+
+  for (const med of medications) {
+    if (!med.isActive) continue;
+    for (const rt of med.reminderTimes) {
+      const [h, m] = rt.time.split(':').map(Number);
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: translate('notif.medTitle', locale),
+          body: translate('notif.medBody', locale, { name: med.name, dosage: med.dosage, unit: med.unit }),
+          data: { medicationId: med.id, type: 'medication', scheduledTime: rt.time },
+          categoryIdentifier: 'medication',
+        },
+        trigger: {
+          type: 'daily',
+          hour: h,
+          minute: m,
+          repeats: true,
+        } as any,
+      });
+    }
+  }
 }

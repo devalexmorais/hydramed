@@ -72,7 +72,7 @@ export default function WelcomeScreen() {
       <View style={styles.footer}>
         <Button
           title={t('onboard.getStarted')}
-          onPress={() => router.push('/(onboarding)/profile-setup')}
+          onPress={() => router.push('/(onboarding)/permissions')}
           size="lg"
           style={{ width: '100%' }}
         />

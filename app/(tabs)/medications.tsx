@@ -7,6 +7,7 @@ import { colors, borderRadius, spacing, fontSize, fontWeight } from '@/lib/theme
 import { formatTime } from '@/lib/utils';
 import { Medication, MedicationLog } from '@/types';
 import { useTranslation } from '@/i18n';
+import { useInterstitial } from '@/components/InterstitialAdManager';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 // Helper to determine the material icon based on medication unit
@@ -43,6 +44,7 @@ function getFrequencyText(med: Medication, locale: string) {
 }
 
 export default function MedicationsScreen() {
+  const { showInterstitial } = useInterstitial();
   const { medications, todayLogs, loadMedications, loadTodayLogs, generateTodayLogs, logStatus } = useMedicationStore();
   const isDark = useIsDark();
   const { t, locale } = useTranslation();
@@ -268,6 +270,7 @@ export default function MedicationsScreen() {
                   if (pendingLogsToday.length > 0) {
                     const sorted = [...pendingLogsToday].sort((a, b) => a.scheduledTime.localeCompare(b.scheduledTime));
                     await logStatus(med.id, sorted[0].scheduledTime, 'taken');
+                    showInterstitial();
                   }
                 };
 
@@ -276,6 +279,7 @@ export default function MedicationsScreen() {
                   const today = now.toISOString().split('T')[0];
                   const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
                   await logStatus(med.id, `${today} ${timeStr}`, 'taken');
+                  showInterstitial();
                 };
 
                 if (med.reminderTimes.length === 0) {

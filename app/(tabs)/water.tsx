@@ -7,6 +7,8 @@ import { useIsDark, useSettingsStore } from '@/stores/useSettingsStore';
 import { useStatsStore } from '@/stores/useStatsStore';
 import { colors, borderRadius, spacing, fontSize, fontWeight } from '@/lib/theme';
 import { useTranslation } from '@/i18n';
+import { useInterstitial } from '@/components/InterstitialAdManager';
+import { distributeWaterReminders } from '@/lib/utils';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Rect, Path, Circle, Polygon, Defs, ClipPath, Ellipse } from 'react-native-svg';
 import { ProgressCircle } from '@/components/ProgressCircle';
@@ -160,9 +162,10 @@ function MiniProgressCircle({ progress, isGoalMet, isDark }: { progress: number;
 }
 
 export default function WaterScreen() {
+  const { showInterstitial } = useInterstitial();
   const { todayIntake, todayLogs, loadToday, addWater, getWeeklyAverage } = useWaterStore();
   const { user, saveUser } = useAuthStore();
-  const { notificationsEnabled, setNotificationsEnabled, reminderInterval } = useSettingsStore();
+  const { notificationsEnabled, setNotificationsEnabled } = useSettingsStore();
   const { weeklyStats, loadDailyStats, loadWeeklyStats } = useStatsStore();
   const isDark = useIsDark();
   const { t, locale } = useTranslation();
@@ -202,6 +205,7 @@ export default function WaterScreen() {
     setShowCustom(false);
     loadDailyStats();
     loadWeeklyStats();
+    showInterstitial();
   };
 
   const handleSaveGoal = async () => {
@@ -215,15 +219,32 @@ export default function WaterScreen() {
     loadDailyStats();
   };
 
-  // Next water reminder time calculation
+  // Next water reminder time based on scheduled notification times
   const getNextWaterTime = () => {
-    if (todayLogs.length === 0) {
-      return '10:30 AM';
+    const times = distributeWaterReminders(
+      user?.waterGoal || 2000,
+      user?.wakeUpTime || '07:00',
+      user?.sleepTime || '23:00'
+    );
+    if (times.length === 0) return '10:30 AM';
+
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    for (const time of times) {
+      const [h, m] = time.split(':').map(Number);
+      if (h * 60 + m > currentMinutes) {
+        const d = new Date();
+        d.setHours(h, m, 0, 0);
+        return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+      }
     }
-    const lastLog = todayLogs[todayLogs.length - 1];
-    const lastTime = new Date(lastLog.createdAt);
-    const nextTime = new Date(lastTime.getTime() + reminderInterval * 60 * 1000);
-    return nextTime.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+
+    const [h, m] = times[0].split(':').map(Number);
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    d.setHours(h, m, 0, 0);
+    return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
   };
 
   const nextWaterTimeStr = getNextWaterTime();
@@ -476,6 +497,7 @@ export default function WaterScreen() {
                     await addWater(item.amount);
                     await loadDailyStats();
                     await loadWeeklyStats();
+                    showInterstitial();
                   }}
                   activeOpacity={0.7}
                 >

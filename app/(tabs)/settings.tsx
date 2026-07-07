@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import { router } from 'expo-router';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useSettingsStore, useIsDark } from '@/stores/useSettingsStore';
@@ -7,36 +8,15 @@ import { Button } from '@/components/ui/Button';
 import { useTranslation } from '@/i18n';
 import { colors, borderRadius, spacing, fontSize, fontWeight } from '@/lib/theme';
 import { ThemeMode } from '@/types';
-import { cancelAllNotifications } from '@/lib/notifications';
+
 
 export default function SettingsScreen() {
-  const { user, resetUser, saveLocale, saveTheme } = useAuthStore();
+  const { user, saveLocale, saveTheme } = useAuthStore();
   const { theme, setTheme, locale, setLocale } = useSettingsStore();
   const isDark = useIsDark();
   const { t } = useTranslation();
-  const handleExport = async () => {
-    Alert.alert(t('common.export'), t('settings.exportComing'));
-  };
-
-  const handleReset = () => {
-    Alert.alert(
-      t('common.reset'),
-      t('settings.resetConfirm'),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('common.reset'),
-          style: 'destructive',
-          onPress: async () => {
-            await resetUser();
-            await cancelAllNotifications();
-            router.replace('/(onboarding)/welcome');
-          },
-        },
-      ]
-    );
-  };
-
+  const [themeModal, setThemeModal] = useState(false);
+  const [langModal, setLangModal] = useState(false);
   const themeOptions: { label: string; value: ThemeMode }[] = [
     { label: t('settings.light'), value: 'light' },
     { label: t('settings.dark'), value: 'dark' },
@@ -141,78 +121,114 @@ export default function SettingsScreen() {
       </Card>
 
       {/* Theme */}
-      <Card variant="elevated">
-        <View style={styles.sectionHeader}>
-          <Text style={{ fontSize: fontSize.md, fontWeight: fontWeight.semibold, color: isDark ? colors.dark.text : colors.light.text }}>
-            🎨 {t('settings.theme')}
-          </Text>
-        </View>
-        <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-          {themeOptions.map((option) => (
-            <Button
-              key={option.value}
-              title={option.label}
-              onPress={() => saveTheme(option.value)}
-              variant={theme === option.value ? 'primary' : 'outline'}
-              size="sm"
-              style={{ flex: 1 }}
-            />
-          ))}
-        </View>
-      </Card>
+      <TouchableOpacity activeOpacity={0.7} onPress={() => setThemeModal(true)}>
+        <Card variant="elevated">
+          <View style={styles.selectRow}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+              <Text style={{ fontSize: fontSize.lg }}>🎨</Text>
+              <View>
+                <Text style={{ fontSize: fontSize.md, fontWeight: fontWeight.semibold, color: isDark ? colors.dark.text : colors.light.text }}>
+                  {t('settings.theme')}
+                </Text>
+                <Text style={{ fontSize: fontSize.sm, color: isDark ? colors.dark.textSecondary : colors.light.textSecondary }}>
+                  {themeOptions.find(o => o.value === theme)?.label}
+                </Text>
+              </View>
+            </View>
+            <Text style={{ fontSize: fontSize.sm, color: isDark ? colors.dark.textTertiary : colors.light.textTertiary }}>
+              ›
+            </Text>
+          </View>
+        </Card>
+      </TouchableOpacity>
 
       {/* Language */}
-      <Card variant="elevated">
-        <View style={styles.sectionHeader}>
-          <Text style={{ fontSize: fontSize.md, fontWeight: fontWeight.semibold, color: isDark ? colors.dark.text : colors.light.text }}>
-            🌐 {t('settings.language')}
-          </Text>
-        </View>
-        <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-          {languageOptions.map((option) => (
-            <TouchableOpacity
-              key={option.value}
-              onPress={async () => {
-                setLocale(option.value);
-                await saveLocale(option.value);
-              }}
-              style={[
-                {
-                  flex: 1,
-                  paddingVertical: spacing.sm,
-                  borderRadius: borderRadius.md,
-                  alignItems: 'center',
-                  borderWidth: 1,
-                  borderColor: locale === option.value ? colors.light.primary : isDark ? colors.dark.border : colors.light.border,
-                  backgroundColor: locale === option.value
-                    ? (isDark ? colors.dark.primaryLight : colors.light.primaryLight)
-                    : 'transparent',
-                },
-              ]}
-              activeOpacity={0.7}
-            >
-              <Text style={{
-                fontSize: fontSize.sm,
-                fontWeight: fontWeight.semibold,
-                color: locale === option.value ? colors.light.primary : isDark ? colors.dark.text : colors.light.text,
-              }}>
-                {option.label}
+      <TouchableOpacity activeOpacity={0.7} onPress={() => setLangModal(true)}>
+        <Card variant="elevated">
+          <View style={styles.selectRow}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+              <Text style={{ fontSize: fontSize.lg }}>🌐</Text>
+              <View>
+                <Text style={{ fontSize: fontSize.md, fontWeight: fontWeight.semibold, color: isDark ? colors.dark.text : colors.light.text }}>
+                  {t('settings.language')}
+                </Text>
+                <Text style={{ fontSize: fontSize.sm, color: isDark ? colors.dark.textSecondary : colors.light.textSecondary }}>
+                  {languageOptions.find(o => o.value === locale)?.label}
+                </Text>
+              </View>
+            </View>
+            <Text style={{ fontSize: fontSize.sm, color: isDark ? colors.dark.textTertiary : colors.light.textTertiary }}>
+              ›
+            </Text>
+          </View>
+        </Card>
+      </TouchableOpacity>
+
+      {/* Theme Modal */}
+      <Modal visible={themeModal} transparent animationType="fade">
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setThemeModal(false)}>
+          <View style={[styles.modalContent, { backgroundColor: isDark ? colors.dark.surface : colors.light.surface, borderColor: isDark ? colors.dark.border : colors.light.border }]}>
+            <Text style={[styles.modalTitle, { color: isDark ? colors.dark.text : colors.light.text }]}>
+              🎨 {t('settings.theme')}
+            </Text>
+            {themeOptions.map((option) => {
+              const selected = theme === option.value;
+              return (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[styles.modalOption, { backgroundColor: selected ? (isDark ? colors.dark.primaryLight : colors.light.primaryLight) : 'transparent', borderColor: selected ? colors.light.primary : (isDark ? colors.dark.border : colors.light.border) }]}
+                  onPress={() => { saveTheme(option.value); setThemeModal(false); }}
+                >
+                  <View style={[styles.radio, { borderColor: selected ? colors.light.primary : (isDark ? colors.dark.textTertiary : colors.light.textTertiary), backgroundColor: selected ? colors.light.primary : 'transparent' }]}>
+                    {selected && <View style={styles.radioInner} />}
+                  </View>
+                  <Text style={{ fontSize: fontSize.md, color: isDark ? colors.dark.text : colors.light.text, fontWeight: selected ? fontWeight.semibold : fontWeight.regular }}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+            <TouchableOpacity style={styles.modalClose} onPress={() => setThemeModal(false)}>
+              <Text style={{ fontSize: fontSize.sm, fontWeight: fontWeight.semibold, color: isDark ? colors.dark.textSecondary : colors.light.textSecondary }}>
+                {t('common.cancel')}
               </Text>
             </TouchableOpacity>
-          ))}
-        </View>
-      </Card>
+          </View>
+        </TouchableOpacity>
+      </Modal>
 
-      {/* Data */}
-      <Card variant="elevated">
-        <Text style={{ fontSize: fontSize.md, fontWeight: fontWeight.semibold, color: isDark ? colors.dark.text : colors.light.text, marginBottom: spacing.md }}>
-          📊 {t('settings.data')}
-        </Text>
-        <View style={{ gap: spacing.sm }}>
-          <Button title={t('settings.exportData')} variant="outline" onPress={handleExport} />
-          <Button title={t('settings.resetAll')} variant="outline" onPress={handleReset} textStyle={{ color: colors.light.danger }} />
-        </View>
-      </Card>
+      {/* Language Modal */}
+      <Modal visible={langModal} transparent animationType="fade">
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setLangModal(false)}>
+          <View style={[styles.modalContent, { backgroundColor: isDark ? colors.dark.surface : colors.light.surface, borderColor: isDark ? colors.dark.border : colors.light.border }]}>
+            <Text style={[styles.modalTitle, { color: isDark ? colors.dark.text : colors.light.text }]}>
+              🌐 {t('settings.language')}
+            </Text>
+            {languageOptions.map((option) => {
+              const selected = locale === option.value;
+              return (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[styles.modalOption, { backgroundColor: selected ? (isDark ? colors.dark.primaryLight : colors.light.primaryLight) : 'transparent', borderColor: selected ? colors.light.primary : (isDark ? colors.dark.border : colors.light.border) }]}
+                  onPress={async () => { setLocale(option.value); await saveLocale(option.value); setLangModal(false); }}
+                >
+                  <View style={[styles.radio, { borderColor: selected ? colors.light.primary : (isDark ? colors.dark.textTertiary : colors.light.textTertiary), backgroundColor: selected ? colors.light.primary : 'transparent' }]}>
+                    {selected && <View style={styles.radioInner} />}
+                  </View>
+                  <Text style={{ fontSize: fontSize.md, color: isDark ? colors.dark.text : colors.light.text, fontWeight: selected ? fontWeight.semibold : fontWeight.regular }}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+            <TouchableOpacity style={styles.modalClose} onPress={() => setLangModal(false)}>
+              <Text style={{ fontSize: fontSize.sm, fontWeight: fontWeight.semibold, color: isDark ? colors.dark.textSecondary : colors.light.textSecondary }}>
+                {t('common.cancel')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
 
       {/* Version */}
       <Card variant="elevated">
@@ -236,4 +252,57 @@ const styles = StyleSheet.create({
   profileDetails: { gap: spacing.sm, marginBottom: spacing.sm },
   detailRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   settingRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  selectRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: borderRadius.lg,
+    borderTopRightRadius: borderRadius.lg,
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
+    borderWidth: 1,
+    borderBottomWidth: 0,
+    gap: spacing.sm,
+  },
+  modalTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.bold,
+    marginBottom: spacing.sm,
+    textAlign: 'center',
+  },
+  modalOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+  },
+  radio: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  radioInner: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#FFFFFF',
+  },
+  modalClose: {
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+    marginTop: spacing.xs,
+  },
 });

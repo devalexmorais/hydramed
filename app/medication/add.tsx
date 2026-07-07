@@ -13,11 +13,11 @@ import { generateId } from '@/lib/utils';
 import { useState } from 'react';
 import { DosageUnit, ReminderType, ReminderTime } from '@/types';
 import { useTranslation } from '@/i18n';
-import { useInterstitialAd } from '@/lib/useInterstitialAd';
-
+import { useInterstitial } from '@/components/InterstitialAdManager';
 const units: DosageUnit[] = ['mg', 'ml', 'tablets', 'capsules'];
 
 export default function AddMedicationScreen() {
+  const { showInterstitial } = useInterstitial();
   const { t } = useTranslation();
   const schema = z.object({
     name: z.string().min(1, t('medAdd.validName')),
@@ -35,8 +35,6 @@ export default function AddMedicationScreen() {
   ];
   const { addMedication } = useMedicationStore();
   const isDark = useIsDark();
-  const { show: showInterstitial } = useInterstitialAd();
-
   const [selectedUnit, setSelectedUnit] = useState<DosageUnit>('mg');
   const [selectedColor, setSelectedColor] = useState<string>(medicationColors[0]);
   const [reminderType, setReminderType] = useState<ReminderType>('once');

@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/Card';
 import { useTranslation, t as translate } from '@/i18n';
 import { colors, borderRadius, spacing, fontSize, fontWeight } from '@/lib/theme';
 import { distributeWaterReminders } from '@/lib/utils';
-import { cancelAllHydrationReminders, cancelAllNotifications } from '@/lib/notifications';
+import { cancelAllNotifications } from '@/lib/notifications';
 import * as Notifications from 'expo-notifications';
 import { Medication } from '@/types';
 
@@ -170,6 +170,7 @@ export default function NotificationScheduleScreen() {
     if (!enabled) {
       await cancelAllNotifications();
     } else {
+      await cancelAllNotifications();
       for (const med of medications) {
         for (const rt of med.reminderTimes) {
           const key = timeKey(med.id, rt.time);

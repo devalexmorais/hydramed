@@ -13,7 +13,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.hydramed.app"
+      "bundleIdentifier": "com.hydramed.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSNotificationUsageDescription": "HydraMed uses notifications to remind you to take your medications and stay hydrated."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -36,8 +40,7 @@
         "react-native-google-mobile-ads",
         {
           "androidAppId": "ca-app-pub-4209407061463021~3380277737",
-          "iosAppId": "ca-app-pub-4209407061463021~2074934926",
-          "userTrackingUsageDescription": "This identifier will be used to deliver personalized ads to you."
+          "iosAppId": "ca-app-pub-4209407061463021~2074934926"
         }
       ]
     ],

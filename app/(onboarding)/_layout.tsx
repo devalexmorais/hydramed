@@ -18,7 +18,8 @@ export default function OnboardingLayout() {
     >
       <Stack.Screen name="language-select" options={{ headerShown: false }} />
       <Stack.Screen name="welcome" options={{ headerShown: false }} />
-      <Stack.Screen name="profile-setup" options={() => ({ title: t('onboard.profileSetup') })} />
+      <Stack.Screen name="permissions" options={{ headerShown: false }} />
+      <Stack.Screen name="profile-setup" options={{ headerShown: false }} />
       <Stack.Screen name="exercise-frequency" options={{ headerTitle: '' }} />
       <Stack.Screen name="meal-times" options={{ headerTitle: '' }} />
       <Stack.Screen name="sleep-time" options={{ headerTitle: '' }} />

@@ -6,7 +6,6 @@ import { useStatsStore } from '@/stores/useStatsStore';
 import { Card } from '@/components/ui/Card';
 import { ProgressCircle } from '@/components/ProgressCircle';
 import { AdBanner } from '@/components/AdBanner';
-import { useInterstitialAd } from '@/lib/useInterstitialAd';
 import { colors, borderRadius, spacing, fontSize, fontWeight } from '@/lib/theme';
 import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 import { useTranslation } from '@/i18n';
@@ -17,7 +16,6 @@ const CHART_HEIGHT = 180;
 
 export default function StatisticsScreen() {
   const isDark = useIsDark();
-  const { show: showInterstitial } = useInterstitialAd();
   const { dailyStats, weeklyStats, loadDailyStats, loadWeeklyStats, loadMonthlyAdherence } = useStatsStore();
   const [monthlyAdherence, setMonthlyAdherence] = useState(0);
 

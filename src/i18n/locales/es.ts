@@ -22,7 +22,6 @@ export const es: Record<string, string> = {
   'common.save': 'Guardar',
   'common.error': 'Error',
   'common.reset': 'Reiniciar',
-  'common.export': 'Exportar',
   'common.doses': 'dosis',
   'common.noData': 'sin datos',
 
@@ -146,11 +145,6 @@ export const es: Record<string, string> = {
   'settings.dark': 'Oscuro',
   'settings.system': 'Sistema',
   'settings.language': 'Idioma',
-  'settings.data': 'Datos',
-  'settings.exportData': 'Exportar Datos',
-  'settings.resetAll': 'Reiniciar Todos los Datos',
-  'settings.exportComing': 'Función de exportación próximamente.',
-  'settings.resetConfirm': '¿Estás seguro? Esto borrará todos tus datos.',
   'settings.version': 'HydraMed v1.0.0',
 
   'onboard.welcome': 'Bienvenido a HydraMed',

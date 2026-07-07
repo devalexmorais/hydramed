@@ -70,7 +70,10 @@ export default function PermissionsScreen() {
           title={t('onboard.enableNotifs')}
           onPress={async () => {
             const locale = useSettingsStore.getState().locale;
-            await requestNotificationPermissions(locale);
+            const granted = await requestNotificationPermissions(locale);
+            if (!granted) {
+              useSettingsStore.getState().setNotificationsEnabled(false);
+            }
             router.push('/(onboarding)/profile-setup');
           }}
           size="lg"

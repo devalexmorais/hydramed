@@ -25,7 +25,6 @@ export const en = {
   'common.save': 'Save',
   'common.error': 'Error',
   'common.reset': 'Reset',
-  'common.export': 'Export',
   'common.doses': 'doses',
   'common.noData': 'no data',
 
@@ -156,11 +155,6 @@ export const en = {
   'settings.dark': 'Dark',
   'settings.system': 'System',
   'settings.language': 'Language',
-  'settings.data': 'Data',
-  'settings.exportData': 'Export Data',
-  'settings.resetAll': 'Reset All Data',
-  'settings.exportComing': 'Data export feature coming soon.',
-  'settings.resetConfirm': 'Are you sure? This will clear all your data.',
   'settings.version': 'HydraMed v1.0.0',
 
   // Onboarding - Welcome

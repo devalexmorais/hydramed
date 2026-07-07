@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import { View, Text, StyleSheet, Animated, Keyboard, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -21,15 +21,16 @@ export default function SummaryScreen() {
   const progressAnim = useRef(new Animated.Value(0)).current;
   const [progress, setProgress] = useState(0);
 
-  const w = user?.weight || 0;
-  const h = user?.height || 0;
-  const calculatedGoal = w && h
+  const w = Math.max(user?.weight || 0, 0);
+  const h = Math.max(user?.height || 0, 0);
+  const calculatedGoal = w > 0 && h > 0
     ? Math.round((w * 33 + h * 0.4) / 100) * 100
-    : w
+    : w > 0
       ? Math.round(w * 33 / 100) * 100
       : 2000;
+  const safeGoal = Number.isFinite(calculatedGoal) ? calculatedGoal : 2000;
 
-  const [waterGoal, setWaterGoal] = useState(String(calculatedGoal));
+  const [waterGoal, setWaterGoal] = useState(String(safeGoal));
 
   useEffect(() => {
     progressAnim.addListener(({ value }) => setProgress(value));
@@ -59,7 +60,7 @@ export default function SummaryScreen() {
 
   const handleStart = async () => {
     setSaving(true);
-    const goal = parseInt(waterGoal) || calculatedGoal;
+    const goal = parseInt(waterGoal) || safeGoal;
     await saveUser({ waterGoal: goal });
     await scheduleAllHydrationReminders(
       goal,
@@ -99,6 +100,7 @@ export default function SummaryScreen() {
   }
 
   return (
+    <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
     <View style={[styles.container, { backgroundColor: isDark ? colors.dark.background : colors.light.background }]}>
       <View style={styles.content}>
         <Animated.View style={[styles.resultContainer, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
@@ -142,6 +144,7 @@ export default function SummaryScreen() {
         </Animated.View>
       </View>
     </View>
+    </Pressable>
   );
 }
 
