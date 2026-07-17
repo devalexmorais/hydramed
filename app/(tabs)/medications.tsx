@@ -159,16 +159,6 @@ export default function MedicationsScreen() {
             </Text>
           </View>
           <TouchableOpacity
-            style={[styles.addButton, { backgroundColor: isDark ? colors.dark.primary : '#6366F1' }]}
-            onPress={() => router.push('/medication/add')}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="add" size={16} color="#FFFFFF" />
-            <Text style={styles.addButtonText}>
-              {locale.startsWith('pt') ? 'Adicionar' : locale.startsWith('es') ? 'Añadir' : 'Add Medication'}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
             onPress={() => router.push('/notification-schedule')}
             style={[styles.notifBtn, { backgroundColor: isDark ? colors.dark.surface : '#FFFFFF', borderColor: isDark ? colors.dark.border : '#E2E8F0' }]}
             activeOpacity={0.7}
@@ -329,6 +319,10 @@ export default function MedicationsScreen() {
                   // Next dose is tomorrow first dose
                   const nextDoseTime = med.reminderTimes[0]?.time || '';
 
+                  const handleUndoLastTaken = async () => {
+                    await logStatus(med.id, lastTaken.scheduledTime, 'pending');
+                  };
+
                   return (
                     <View style={[styles.cardSubBar, { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.1)' : '#F0FDF4' }]}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flex: 1 }}>
@@ -337,6 +331,16 @@ export default function MedicationsScreen() {
                           {isPt ? `Tomado às ${lastTimeStr}` : isEs ? `Tomado a las ${lastTimeStr}` : `Taken at ${lastTimeStr}`}
                         </Text>
                       </View>
+                      <TouchableOpacity
+                        onPress={handleUndoLastTaken}
+                        activeOpacity={0.7}
+                        style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginRight: spacing.sm }}
+                      >
+                        <Ionicons name="arrow-undo" size={14} color="#F59E0B" />
+                        <Text style={[styles.cardSubBarText, { color: '#F59E0B', fontWeight: '600' }]}>
+                          {isPt ? 'Desfazer' : isEs ? 'Deshacer' : 'Undo'}
+                        </Text>
+                      </TouchableOpacity>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                         <Ionicons name="alarm-outline" size={13} color="#94A3B8" />
                         <Text style={styles.cardSubBarText}>
@@ -500,6 +504,14 @@ export default function MedicationsScreen() {
         )}
 
       </ScrollView>
+
+      <TouchableOpacity
+        style={[styles.fab, { backgroundColor: isDark ? colors.dark.primary : '#6366F1' }]}
+        onPress={() => router.push('/medication/add')}
+        activeOpacity={0.8}
+      >
+        <Ionicons name="add" size={24} color="#FFFFFF" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -530,30 +542,6 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: fontSize.xs,
     marginTop: 2,
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: borderRadius.lg,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#6366F1',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
-  },
-  addButtonText: {
-    fontSize: fontSize.xs,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
   },
   notifBtn: {
     width: 40,
@@ -755,5 +743,26 @@ const styles = StyleSheet.create({
   timelineStatus: {
     fontSize: fontSize.xs,
     fontWeight: fontWeight.bold,
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 30,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#6366F1',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
   },
 });

@@ -8,6 +8,7 @@ interface WaterState {
   isLoading: boolean;
   loadToday: () => Promise<void>;
   addWater: (amount: number) => Promise<void>;
+  undoLastWater: () => Promise<void>;
   getWeeklyAverage: () => Promise<number>;
   getMonthlyAverage: () => Promise<number>;
 }
@@ -33,6 +34,14 @@ export const useWaterStore = create<WaterState>((set, get) => ({
       `INSERT INTO water_logs (amount, createdAt) VALUES (?, datetime('now'))`,
       [amount]
     );
+    await get().loadToday();
+  },
+
+  undoLastWater: async () => {
+    const logs = get().todayLogs;
+    if (logs.length === 0) return;
+    const lastLog = logs[logs.length - 1];
+    await executeRun(`DELETE FROM water_logs WHERE id = ?`, [lastLog.id]);
     await get().loadToday();
   },
 

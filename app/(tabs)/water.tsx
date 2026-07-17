@@ -163,7 +163,7 @@ function MiniProgressCircle({ progress, isGoalMet, isDark }: { progress: number;
 
 export default function WaterScreen() {
   const { showInterstitial } = useInterstitial();
-  const { todayIntake, todayLogs, loadToday, addWater, getWeeklyAverage } = useWaterStore();
+  const { todayIntake, todayLogs, loadToday, addWater, undoLastWater, getWeeklyAverage } = useWaterStore();
   const { user, saveUser } = useAuthStore();
   const { notificationsEnabled, setNotificationsEnabled } = useSettingsStore();
   const { weeklyStats, loadDailyStats, loadWeeklyStats } = useStatsStore();
@@ -452,6 +452,22 @@ export default function WaterScreen() {
             <Text style={[styles.cardTitle, { color: isDark ? colors.dark.text : '#0F172A' }]}>
               {locale.startsWith('pt') ? 'Adição Rápida' : 'Quick Add'}
             </Text>
+            {todayLogs.length > 0 && (
+              <TouchableOpacity
+                onPress={async () => {
+                  await undoLastWater();
+                  await loadDailyStats();
+                  await loadWeeklyStats();
+                }}
+                activeOpacity={0.7}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+              >
+                <Ionicons name="arrow-undo" size={14} color="#F59E0B" />
+                <Text style={{ fontSize: fontSize.xs, color: '#F59E0B', fontWeight: '600' }}>
+                  {locale.startsWith('pt') ? 'Desfazer' : locale.startsWith('es') ? 'Deshacer' : 'Undo'}
+                </Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity 
               activeOpacity={0.7} 
               onPress={() => setShowCustom(!showCustom)}

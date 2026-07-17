@@ -51,6 +51,11 @@ export function InterstitialAdManager({ children }: { children: ReactNode }) {
     if (now - lastShowRef.current < 60000) return;
     if (adRef.current && loadedRef.current) {
       lastShowRef.current = now;
+      // Enable immersive mode so the "Skip Ad" / close button is not
+      // obscured by the Android status bar / notification area.
+      if (typeof adRef.current.setImmersiveMode === 'function') {
+        adRef.current.setImmersiveMode(true);
+      }
       adRef.current.show();
     }
   }, []);

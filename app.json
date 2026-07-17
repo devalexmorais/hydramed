@@ -2,7 +2,7 @@
   "expo": {
     "name": "HydraMed",
     "slug": "hydramed",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "hydramed",
@@ -23,7 +23,7 @@
       "adaptiveIcon": {
         "backgroundColor": "#0EA5E9"
       },
-      "package": "com.hydramed.app"
+      "package": "com.wolfpackinnovation.hydramed"
     },
     "plugins": [
       "expo-router",
@@ -42,7 +42,8 @@
           "androidAppId": "ca-app-pub-4209407061463021~3380277737",
           "iosAppId": "ca-app-pub-4209407061463021~2074934926"
         }
-      ]
+      ],
+      "./plugins/withAdMobSafeArea"
     ],
     "extra": {
       "router": {},

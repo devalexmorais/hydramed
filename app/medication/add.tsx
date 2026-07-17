@@ -55,12 +55,20 @@ export default function AddMedicationScreen() {
     },
   });
 
+  const formatTimeInput = (text: string): string => {
+    const digits = text.replace(/\D/g, '').slice(0, 4);
+    if (digits.length === 0) return '';
+    if (digits.length <= 2) return digits;
+    return digits.slice(0, 2) + ':' + digits.slice(2);
+  };
+
   const addReminderTime = () => {
     setReminderTimes([...reminderTimes, { id: generateId(), time: '12:00' }]);
   };
 
   const updateReminderTime = (id: string, time: string) => {
-    setReminderTimes(reminderTimes.map((rt) => rt.id === id ? { ...rt, time } : rt));
+    const formatted = formatTimeInput(time);
+    setReminderTimes(reminderTimes.map((rt) => rt.id === id ? { ...rt, time: formatted } : rt));
   };
 
   const removeReminderTime = (id: string) => {
@@ -143,9 +151,10 @@ export default function AddMedicationScreen() {
           </TouchableOpacity>
           <Text
             style={{
-              fontSize: fontSize.lg,
+              fontSize: fontSize.md,
               fontWeight: fontWeight.bold,
               color: isDark ? colors.dark.text : colors.light.text,
+              marginLeft: spacing.sm,
             }}
           >
             {t('medAdd.title')}
@@ -161,6 +170,7 @@ export default function AddMedicationScreen() {
           )}
         />
 
+        {/* Campo de Dosagem */}
         <Controller
           control={control}
           name="dosage"
@@ -176,8 +186,11 @@ export default function AddMedicationScreen() {
           )}
         />
 
-        <Text style={[styles.label, { color: isDark ? colors.dark.textSecondary : colors.light.textSecondary }]}>{t('medAdd.unit')}</Text>
-        <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md }}>
+        {/* Chips de unidade — linha única compacta */}
+        <Text style={[styles.label, { color: isDark ? colors.dark.textSecondary : colors.light.textSecondary }]}>
+          {t('medAdd.unit')}
+        </Text>
+        <View style={styles.unitRow}>
           {units.map((unit) => (
             <TouchableOpacity
               key={unit}
@@ -185,16 +198,20 @@ export default function AddMedicationScreen() {
               style={[
                 styles.unitChip,
                 {
-                  backgroundColor: selectedUnit === unit ? colors.light.primary : (isDark ? colors.dark.surfaceSecondary : colors.light.surfaceSecondary),
+                  backgroundColor: selectedUnit === unit
+                    ? colors.light.primary
+                    : (isDark ? colors.dark.surfaceSecondary : colors.light.surfaceSecondary),
                 },
               ]}
             >
               <Text
                 style={{
-                  color: selectedUnit === unit ? '#FFFFFF' : (isDark ? colors.dark.text : colors.light.text),
-                  fontSize: fontSize.sm,
-                  fontWeight: fontWeight.medium,
+                  color: selectedUnit === unit ? '#FFFFFF' : (isDark ? colors.dark.textSecondary : colors.light.textSecondary),
+                  fontSize: 11,
+                  fontWeight: selectedUnit === unit ? fontWeight.semibold : fontWeight.medium,
+                  letterSpacing: 0.2,
                 }}
+                numberOfLines={1}
               >
                 {t('medAdd.' + unit)}
               </Text>
@@ -254,14 +271,14 @@ export default function AddMedicationScreen() {
             style={[
               styles.reminderTypeRow,
               {
-                backgroundColor: reminderType === type.value ? colors.light.primaryLight : (isDark ? colors.dark.surfaceSecondary : colors.light.surfaceSecondary),
+                backgroundColor: reminderType === type.value ? colors.light.primary : (isDark ? colors.dark.surfaceSecondary : colors.light.surfaceSecondary),
                 borderColor: reminderType === type.value ? colors.light.primary : (isDark ? colors.dark.border : colors.light.border),
               },
             ]}
           >
             <Text
               style={{
-                color: reminderType === type.value ? colors.light.primary : (isDark ? colors.dark.text : colors.light.text),
+                color: reminderType === type.value ? '#FFFFFF' : (isDark ? colors.dark.text : colors.light.text),
                 fontWeight: fontWeight.medium,
               }}
             >
@@ -280,6 +297,7 @@ export default function AddMedicationScreen() {
                 placeholder={t('medAdd.timePlaceholder')}
                 value={rt.time}
                 onChangeText={(t) => updateReminderTime(rt.id, t)}
+                keyboardType="numeric"
                 containerStyle={{ flex: 1, marginBottom: 0 }}
                 style={{ textAlign: 'center' }}
               />
@@ -351,11 +369,39 @@ const styles = StyleSheet.create({
     fontWeight: fontWeight.medium,
     marginBottom: spacing.xs,
   },
+  dosageUnitBlock: {
+    marginBottom: spacing.xs,
+  },
+  dosageUnitLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: spacing.xs,
+  },
+  dosageLabelText: {
+    fontSize: fontSize.sm,
+    fontWeight: fontWeight.medium,
+  },
+  dosageUnitRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+  },
+  dosageInput: {
+    flex: 1,
+    marginBottom: 0,
+  },
+  unitRow: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    marginBottom: spacing.md,
+  },
   unitChip: {
     flex: 1,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.md,
+    paddingVertical: 6,
+    paddingHorizontal: spacing.xs,
+    borderRadius: borderRadius.full ?? 999,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   colorDot: {
     width: 28,

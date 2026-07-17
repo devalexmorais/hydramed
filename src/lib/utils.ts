@@ -84,17 +84,28 @@ export function formatTimeInput(text: string): string {
 export function distributeWaterReminders(
   goal: number,
   wakeUp: string,
-  sleep: string
+  sleep: string,
+  paddingMinutes: number = 30
 ): string[] {
   const wakeParts = wakeUp.split(':').map(Number);
   const sleepParts = sleep.split(':').map(Number);
   const wakeMinutes = wakeParts[0] * 60 + wakeParts[1];
   const sleepMinutes = sleepParts[0] * 60 + sleepParts[1];
   const awakeMinutes = sleepMinutes - wakeMinutes;
-  const intervalMinutes = Math.max(awakeMinutes / Math.ceil(goal / 250), 60);
+
+  const safePadding =
+    awakeMinutes > paddingMinutes * 2 ? paddingMinutes : 0;
+  const effectiveWake = wakeMinutes + safePadding;
+  const effectiveSleep = sleepMinutes - safePadding;
+  const effectiveAwakeMinutes = effectiveSleep - effectiveWake;
+
+  const intervalMinutes = Math.max(
+    effectiveAwakeMinutes / Math.ceil(goal / 250),
+    60
+  );
   const reminders: string[] = [];
-  
-  for (let m = wakeMinutes; m < sleepMinutes; m += intervalMinutes) {
+
+  for (let m = effectiveWake; m < effectiveSleep; m += intervalMinutes) {
     let hours = Math.floor(m / 60);
     let mins = Math.round(m % 60);
     if (mins === 60) {

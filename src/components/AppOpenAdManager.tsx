@@ -16,6 +16,11 @@ export function AppOpenAdManager() {
 
     function showAd() {
       if (adRef.current && loadedRef.current) {
+        // Enable immersive mode so the "Skip Ad" / close button is not
+        // obscured by the Android status bar / notification area.
+        if (typeof adRef.current.setImmersiveMode === 'function') {
+          adRef.current.setImmersiveMode(true);
+        }
         adRef.current.show();
       }
     }
