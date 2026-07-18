@@ -10,7 +10,7 @@ import { colors, borderRadius, spacing, fontSize, fontWeight } from '@/lib/theme
 import { formatTime, formatDate } from '@/lib/utils';
 import { Medication, MedicationLog } from '@/types';
 import { executeQuery } from '@/db/database';
-import { useTranslation } from '@/i18n';
+import { useTranslation, translateUnit } from '@/i18n';
 
 export default function MedicationDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -22,7 +22,7 @@ export default function MedicationDetailScreen() {
     router.back();
   };
 
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const med = medications.find((m) => m.id === parseInt(id));
 
   useFocusEffect(
@@ -96,7 +96,7 @@ export default function MedicationDetailScreen() {
           {med.name}
         </Text>
         <Text style={[styles.medDosage, { color: isDark ? colors.dark.textSecondary : colors.light.textSecondary }]}>
-          {med.dosage} {med.unit}
+          {med.dosage} {translateUnit(med.unit, locale)}
         </Text>
       </Card>
 

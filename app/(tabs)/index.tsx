@@ -9,7 +9,7 @@ import { useIsDark } from '@/stores/useSettingsStore';
 import { ProgressCircle } from '@/components/ProgressCircle';
 import { colors, borderRadius, spacing, fontSize, fontWeight } from '@/lib/theme';
 import { formatDateFull, formatTime, distributeWaterReminders } from '@/lib/utils';
-import { useTranslation, getGreeting } from '@/i18n';
+import { useTranslation, getGreeting, translateUnit } from '@/i18n';
 import { useInterstitial } from '@/components/InterstitialAdManager';
 
 import { Ionicons } from '@expo/vector-icons';
@@ -152,7 +152,7 @@ export default function DashboardScreen() {
         type: 'medication',
         time: formatTime(timePart),
         title: log.medicationName,
-        subtitle: `${log.dosage} ${log.unit || 'comprimido'}`,
+        subtitle: `${log.dosage} ${translateUnit(log.unit || 'tablets', locale)}`,
         rawLog: log,
       });
     }

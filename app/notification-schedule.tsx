@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Switch, TouchableOpacity, StyleSheet, TextInput, Alert, Modal } from 'react-native';
+import { View, Text, ScrollView, Switch, TouchableOpacity, StyleSheet, TextInput, Alert, Modal, Platform } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { useState, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,10 +6,10 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useIsDark, useSettingsStore } from '@/stores/useSettingsStore';
 import { useMedicationStore } from '@/stores/useMedicationStore';
 import { Card } from '@/components/ui/Card';
-import { useTranslation, t as translate } from '@/i18n';
+import { useTranslation, t as translate, translateUnit } from '@/i18n';
 import { colors, borderRadius, spacing, fontSize, fontWeight } from '@/lib/theme';
 import { distributeWaterReminders } from '@/lib/utils';
-import { cancelAllNotifications } from '@/lib/notifications';
+import { cancelAllNotifications, cancelAllHydrationReminders, scheduleAllHydrationReminders } from '@/lib/notifications';
 import * as Notifications from 'expo-notifications';
 import { Medication } from '@/types';
 
@@ -99,6 +99,26 @@ export default function NotificationScheduleScreen() {
     setWaterEnabledState(waterState);
   }
 
+  async function saveWaterSettings() {
+    const goal = Number(waterGoal) || 2000;
+    const w = wakeUp.match(/^\d{2}:\d{2}$/) ? wakeUp : '07:00';
+    const s = sleep.match(/^\d{2}:\d{2}$/) ? sleep : '23:00';
+
+    await saveUser({ wakeUpTime: w, sleepTime: s, waterGoal: goal });
+    await cancelAllHydrationReminders();
+
+    const times = distributeWaterReminders(goal, w, s);
+    setWaterTimes(times);
+
+    const newWaterState: Record<string, boolean> = {};
+    for (const t of times) {
+      newWaterState[t] = true;
+    }
+    setWaterEnabledState(newWaterState);
+
+    await scheduleAllHydrationReminders(goal, w, s, locale);
+  }
+
   async function toggleReminderTime(medicationId: number, scheduledTime: string, enabled: boolean) {
     const key = timeKey(medicationId, scheduledTime);
     setMedEnabled((prev) => ({ ...prev, [key]: enabled }));
@@ -120,10 +140,11 @@ export default function NotificationScheduleScreen() {
           body: translate('notif.medBody', locale, {
             name: med.name,
             dosage: med.dosage,
-            unit: med.unit,
+            unit: translateUnit(med.unit, locale),
           }),
           data: { medicationId, type: 'medication', scheduledTime },
           categoryIdentifier: 'medication',
+          sound: Platform.OS === 'ios' ? 'som.wav' : 'som.mp3',
         },
         trigger: {
           type: 'daily',
@@ -154,6 +175,7 @@ export default function NotificationScheduleScreen() {
           body: translate('notif.waterBody', locale),
           data: { type: 'hydration', scheduledTime: time },
           categoryIdentifier: 'hydration',
+          sound: Platform.OS === 'ios' ? 'som.wav' : 'som.mp3',
         },
         trigger: {
           type: 'daily',
@@ -179,9 +201,10 @@ export default function NotificationScheduleScreen() {
             await Notifications.scheduleNotificationAsync({
               content: {
                 title: translate('notif.medTitle', locale),
-                body: translate('notif.medBody', locale, { name: med.name, dosage: med.dosage, unit: med.unit }),
+                body: translate('notif.medBody', locale, { name: med.name, dosage: med.dosage, unit: translateUnit(med.unit, locale) }),
                 data: { medicationId: med.id, type: 'medication', scheduledTime: rt.time },
                 categoryIdentifier: 'medication',
+                sound: Platform.OS === 'ios' ? 'som.wav' : 'som.mp3',
               },
               trigger: { type: 'daily', hour: h, minute: m, repeats: true } as any,
             });
@@ -197,6 +220,7 @@ export default function NotificationScheduleScreen() {
               body: translate('notif.waterBody', locale),
               data: { type: 'hydration', scheduledTime: time },
               categoryIdentifier: 'hydration',
+              sound: Platform.OS === 'ios' ? 'som.wav' : 'som.mp3',
             },
             trigger: { type: 'daily', hour: h, minute: m, repeats: true } as any,
           });
@@ -230,6 +254,7 @@ export default function NotificationScheduleScreen() {
           body: translate('notif.waterBody', locale),
           data: { type: 'hydration', scheduledTime: newTime },
           categoryIdentifier: 'hydration',
+          sound: Platform.OS === 'ios' ? 'som.wav' : 'som.mp3',
         },
         trigger: { type: 'daily', hour: h, minute: m, repeats: true } as any,
       });
@@ -264,6 +289,7 @@ export default function NotificationScheduleScreen() {
           body: translate('notif.medBody', locale, { name: med.name, dosage: med.dosage, unit: med.unit }),
           data: { medicationId: editTarget.medicationId, type: 'medication', scheduledTime: newTime },
           categoryIdentifier: 'medication',
+          sound: Platform.OS === 'ios' ? 'som.wav' : 'som.mp3',
         },
         trigger: { type: 'daily', hour: h, minute: m, repeats: true } as any,
       });
@@ -381,6 +407,14 @@ export default function NotificationScheduleScreen() {
                 keyboardType="number-pad"
               />
             </View>
+            <TouchableOpacity
+              onPress={saveWaterSettings}
+              style={[styles.saveBtn, { backgroundColor: colors.light.primary }]}
+            >
+              <Text style={{ color: '#FFFFFF', fontSize: fontSize.sm, fontWeight: fontWeight.semibold }}>
+                {t('common.save')}
+              </Text>
+            </TouchableOpacity>
           </View>
 
           {/* Water times list with individual toggles */}
@@ -529,6 +563,7 @@ function MedicationNotificationCard({
   t: (key: string, params?: Record<string, string | number>) => string;
   formatTimeSafe: (time: string) => string;
 }) {
+  const { locale } = useTranslation();
   const textColor = isDark ? colors.dark.text : colors.light.text;
   const textSecondary = isDark ? colors.dark.textSecondary : colors.light.textSecondary;
   const border = isDark ? colors.dark.border : colors.light.border;
@@ -543,7 +578,7 @@ function MedicationNotificationCard({
               {medication.name}
             </Text>
             <Text style={[medCardStyles.medDosage, { color: textSecondary }]}>
-              {medication.dosage}{medication.unit}
+              {medication.dosage}{translateUnit(medication.unit, locale)}
             </Text>
           </View>
           <TouchableOpacity onPress={onEdit} style={medCardStyles.editBtn}>
@@ -685,6 +720,12 @@ const styles = StyleSheet.create({
   waterControls: {
     gap: spacing.xs,
     marginBottom: spacing.sm,
+  },
+  saveBtn: {
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.md,
+    marginTop: spacing.xs,
   },
   inputRow: {
     flexDirection: 'row',

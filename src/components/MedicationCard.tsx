@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/Card';
 import { colors, borderRadius, spacing, fontSize, fontWeight } from '@/lib/theme';
 import { useIsDark } from '@/stores/useSettingsStore';
 import { formatTime } from '@/lib/utils';
-import { useTranslation } from '@/i18n';
+import { useTranslation, translateUnit } from '@/i18n';
 
 interface MedicationCardProps {
   medication: Medication;
@@ -23,7 +23,7 @@ export function MedicationCard({
   onSkip,
   onSnooze,
 }: MedicationCardProps) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const isDark = useIsDark();
   const isTaken = todayLog?.status === 'taken';
   const isSkipped = todayLog?.status === 'skipped';
@@ -68,7 +68,7 @@ export function MedicationCard({
                 marginTop: 2,
               }}
             >
-              {medication.dosage} {medication.unit}
+              {medication.dosage} {translateUnit(medication.unit, locale)}
               {medication.reminderTimes.length > 0 &&
                 ` · ${formatTime(medication.reminderTimes[0].time)}`}
             </Text>

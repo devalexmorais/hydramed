@@ -9,10 +9,10 @@ import { colors, borderRadius, spacing, fontSize, fontWeight } from '@/lib/theme
 import { formatDate, formatTime } from '@/lib/utils';
 import { executeQuery } from '@/db/database';
 import { MedicationLog, WaterLog } from '@/types';
-import { useTranslation } from '@/i18n';
+import { useTranslation, translateUnit } from '@/i18n';
 
 export default function HistoryScreen() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const isDark = useIsDark();
   const [searchDate, setSearchDate] = useState(new Date().toISOString().split('T')[0]);
   const [medLogs, setMedLogs] = useState<MedicationLog[]>([]);
@@ -100,7 +100,7 @@ export default function HistoryScreen() {
                   {log.medicationName}
                 </Text>
                 <Text style={{ color: isDark ? colors.dark.textSecondary : colors.light.textSecondary, fontSize: fontSize.xs }}>
-                  {log.dosage}{log.unit}
+                  {log.dosage}{translateUnit(log.unit, locale)}
                 </Text>
               </View>
               <View style={{ alignItems: 'flex-end' }}>

@@ -6,7 +6,7 @@ import { useIsDark } from '@/stores/useSettingsStore';
 import { colors, borderRadius, spacing, fontSize, fontWeight } from '@/lib/theme';
 import { formatTime } from '@/lib/utils';
 import { Medication, MedicationLog } from '@/types';
-import { useTranslation } from '@/i18n';
+import { useTranslation, translateUnit } from '@/i18n';
 import { useInterstitial } from '@/components/InterstitialAdManager';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -401,7 +401,7 @@ export default function MedicationsScreen() {
                         {med.name}
                       </Text>
                       <Text style={[styles.medDetails, { color: isDark ? colors.dark.textSecondary : '#64748B' }]}>
-                        {med.dosage} {med.unit} • {med.notes || (locale.startsWith('pt') ? 'Sem notas' : 'No instructions')}
+                        {med.dosage} {translateUnit(med.unit, locale)} • {med.notes || (locale.startsWith('pt') ? 'Sem notas' : 'No instructions')}
                       </Text>
 
                       {/* Frequency Badge */}
@@ -491,7 +491,7 @@ export default function MedicationsScreen() {
                       {formatTime(timeStr)}
                     </Text>
                     <Text style={[styles.timelineMedName, { color: isDark ? colors.dark.text : '#1E293B', textDecorationLine: isSkipped ? 'line-through' : 'none' }]} numberOfLines={1}>
-                      {log.medicationName} {med ? `(${med.dosage}${med.unit})` : ''}
+                      {log.medicationName} {med ? `(${med.dosage}${translateUnit(med.unit, locale)})` : ''}
                     </Text>
                     <Text style={[styles.timelineStatus, { color: statusColor }]}>
                       {statusLabel}

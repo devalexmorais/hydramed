@@ -2,8 +2,9 @@ import { create } from 'zustand';
 import { Medication, MedicationLog, MedicationStatus } from '@/types';
 import { executeQuery, executeRun, getFirst } from '@/db/database';
 import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
 import { generateId } from '@/lib/utils';
-import { t as translate } from '@/i18n';
+import { t as translate, translateUnit } from '@/i18n';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 
 interface MedicationState {
@@ -76,9 +77,10 @@ export const useMedicationStore = create<MedicationState>((set, get) => ({
       await Notifications.scheduleNotificationAsync({
         content: {
           title: translate('notif.medTitle', locale),
-          body: translate('notif.medBody', locale, { name: med.name, dosage: med.dosage, unit: med.unit }),
+          body: translate('notif.medBody', locale, { name: med.name, dosage: med.dosage, unit: translateUnit(med.unit, locale) }),
           data: { medicationId: result.lastInsertRowId, type: 'medication', scheduledTime: rt.time },
           categoryIdentifier: 'medication',
+          sound: Platform.OS === 'ios' ? 'som.wav' : 'som.mp3',
         },
         trigger: {
           type: 'daily',

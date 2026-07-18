@@ -41,4 +41,10 @@ export function t(key: string, locale: string = 'en', params?: Record<string, st
   return lookup(key, locale, params);
 }
 
+export function translateUnit(unit: string, locale: string = 'en'): string {
+  const key = `medAdd.${unit}`;
+  const translated = translations[locale]?.[key] ?? translations.en?.[key];
+  return translated ?? unit;
+}
+
 export type { Locale };

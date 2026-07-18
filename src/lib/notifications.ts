@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { distributeWaterReminders } from './utils';
-import { t as translate } from '@/i18n';
+import { t as translate, translateUnit } from '@/i18n';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useMedicationStore } from '@/stores/useMedicationStore';
 import { useWaterStore } from '@/stores/useWaterStore';
@@ -24,12 +24,14 @@ export async function requestNotificationPermissions(locale: string = 'en'): Pro
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#0EA5E9',
+      sound: Platform.OS === 'ios' ? 'som.wav' : 'som.mp3',
     });
     await Notifications.setNotificationChannelAsync('hydration', {
       name: translate('notif.waterChannel', locale),
       importance: Notifications.AndroidImportance.DEFAULT,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#3B82F6',
+      sound: Platform.OS === 'ios' ? 'som.wav' : 'som.mp3',
     });
   }
 
@@ -55,9 +57,10 @@ export async function scheduleMedicationReminder(
   const id = await Notifications.scheduleNotificationAsync({
     content: {
       title: translate('notif.medTitle', locale),
-      body: translate('notif.medBody', locale, { name: medicationName, dosage, unit }),
+      body: translate('notif.medBody', locale, { name: medicationName, dosage, unit: translateUnit(unit, locale) }),
       data: { medicationId, type: 'medication', scheduledTime },
       categoryIdentifier: 'medication',
+      sound: Platform.OS === 'ios' ? 'som.wav' : 'som.mp3',
     },
     trigger: {
       date: trigger,
@@ -81,6 +84,7 @@ export async function scheduleHydrationReminder(
       body: translate('notif.waterBody', locale),
       data: { type: 'hydration', scheduledTime: time },
       categoryIdentifier: 'hydration',
+      sound: Platform.OS === 'ios' ? 'som.wav' : 'som.mp3',
     },
     trigger: {
       type: 'daily',
@@ -197,6 +201,7 @@ export function setupNotificationResponseHandler(): () => void {
           body: notification.request.content.body,
           data,
           categoryIdentifier: 'medication',
+          sound: Platform.OS === 'ios' ? 'som.wav' : 'som.mp3',
         },
         trigger: { date: triggerDate, channelId: 'medications' },
       });
@@ -226,9 +231,10 @@ export async function rescheduleAllNotifications(locale: string = 'en'): Promise
       await Notifications.scheduleNotificationAsync({
         content: {
           title: translate('notif.medTitle', locale),
-          body: translate('notif.medBody', locale, { name: med.name, dosage: med.dosage, unit: med.unit }),
+          body: translate('notif.medBody', locale, { name: med.name, dosage: med.dosage, unit: translateUnit(med.unit, locale) }),
           data: { medicationId: med.id, type: 'medication', scheduledTime: rt.time },
           categoryIdentifier: 'medication',
+          sound: Platform.OS === 'ios' ? 'som.wav' : 'som.mp3',
         },
         trigger: {
           type: 'daily',
